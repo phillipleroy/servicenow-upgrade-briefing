@@ -27,6 +27,17 @@ const priorityRank = { critical: 0, high: 1, medium: 2, informational: 3 };
 const classRank = { risk: 0, deprecation: 1, change: 2, opportunity: 3 };
 const monthlyTypeRank = { removed: 0, changed: 1, patch: 2, new: 3, fixed: 4 };
 const availableMonths = [...new Set(monthlyEntries.map((entry) => entry.month))].sort().reverse();
+type ThemeMode = "system" | "light" | "dark";
+const themeModes: ThemeMode[] = ["system", "light", "dark"];
+
+function readInitialTheme(): ThemeMode {
+  try {
+    const saved = window.localStorage.getItem("upgrade-brief-theme");
+    return saved === "light" || saved === "dark" ? saved : "system";
+  } catch {
+    return "system";
+  }
+}
 
 function monthLabel(month: string) {
   return new Intl.DateTimeFormat("en", { month: "long", year: "numeric", timeZone: "UTC" })
@@ -146,6 +157,7 @@ export default function App() {
   const [monthlyFocus, setMonthlyFocus] = useState<MonthlyFocus>(initial.monthlyFocus);
   const [month, setMonth] = useState(initial.month);
   const [copyLabel, setCopyLabel] = useState("Copy briefing link");
+  const [themeMode, setThemeMode] = useState<ThemeMode>(readInitialTheme);
 
   const activeFocus = view === "upgrade" ? upgradeFocus : monthlyFocus;
   const isPersonalized = Boolean(selectedRole || selectedProducts.length || activeFocus !== "all");
@@ -162,6 +174,26 @@ export default function App() {
     const query = params.toString();
     window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
   }, [view, month, selectedRole, selectedProducts, activeFocus]);
+
+  useEffect(() => {
+    const systemPreference = window.matchMedia("(prefers-color-scheme: dark)");
+    const applyTheme = () => {
+      const resolvedTheme = themeMode === "system" ? (systemPreference.matches ? "dark" : "light") : themeMode;
+      document.documentElement.dataset.theme = resolvedTheme;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", resolvedTheme === "dark" ? "#101713" : "#12211d");
+    };
+
+    applyTheme();
+    try {
+      if (themeMode === "system") window.localStorage.removeItem("upgrade-brief-theme");
+      else window.localStorage.setItem("upgrade-brief-theme", themeMode);
+    } catch {
+      // The theme still works for this session when storage is unavailable.
+    }
+
+    if (themeMode === "system") systemPreference.addEventListener("change", applyTheme);
+    return () => systemPreference.removeEventListener("change", applyTheme);
+  }, [themeMode]);
 
   const filteredUpgradeEntries = useMemo(() => {
     const filtered = upgradeEntries.filter((entry) => {
@@ -233,13 +265,18 @@ export default function App() {
 
   const isMonthly = view === "monthly";
   const focusOptions = isMonthly ? (["all", "actions", "new", "fixes"] as MonthlyFocus[]) : (["all", "risks", "opportunities"] as Focus[]);
+  const nextTheme = themeModes[(themeModes.indexOf(themeMode) + 1) % themeModes.length];
+  const themeIcon = themeMode === "system" ? "◐" : themeMode === "light" ? "☀" : "☾";
 
   return (
     <>
       <a className="skip-link" href="#briefing-results">Skip to briefing</a>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Upgrade Brief home"><span className="brand-mark" aria-hidden="true">UB</span><span>Upgrade Brief</span></a>
-        <nav aria-label="Primary navigation"><a href="#methodology">Methodology</a><a href="https://github.com/phillipleroy/upgrade-brief" target="_blank" rel="noreferrer">GitHub</a></nav>
+        <div className="header-actions">
+          <nav aria-label="Primary navigation"><a href="#methodology">Methodology</a><a href="https://github.com/phillipleroy/upgrade-brief" target="_blank" rel="noreferrer">GitHub</a></nav>
+          <button className="theme-toggle" type="button" onClick={() => setThemeMode(nextTheme)} aria-label={`Theme: ${themeMode}. Switch to ${nextTheme} theme.`} title={`Theme: ${themeMode}`}><span aria-hidden="true">{themeIcon}</span><span>{themeMode}</span></button>
+        </div>
       </header>
 
       <main id="top">
