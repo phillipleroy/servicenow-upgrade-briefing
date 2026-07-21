@@ -9,6 +9,22 @@ Visitors can share filtered URLs, print or save a briefing as PDF, and open the 
 
 The project is not affiliated with or endorsed by ServiceNow. Editorial priorities and recommendations are explicitly separated from official ServiceNow facts.
 
+## Source strategy
+
+Use the official [ServiceNowDocs repository](https://github.com/ServiceNow/ServiceNowDocs) as the preferred machine-readable source for family documentation, family release notes, deprecations, and cross-family delta content. Read the branch matching the relevant family and retrieve only the Markdown files needed for the topic. Record the source path, commit SHA, `last_updated`, and canonical ServiceNow documentation URL when practical.
+
+ServiceNowDocs is not the only source. Use a hybrid policy:
+
+- **Family documentation and release deltas:** ServiceNowDocs Markdown first
+- **Monthly Store application versions:** public ServiceNow Store release-note pages
+- **Platform patches and availability:** public ServiceNow patches and hotfixes page
+- **Restricted security or hotfix details:** Now Support; do not infer unavailable details
+- **Images, diagrams, interactive content, and final human verification:** canonical ServiceNow documentation site
+
+Use `llms.txt` as a directory rather than loading it or the entire repository into model context. Targeted Markdown retrieval and local text search reduce irrelevant context and make source comparisons more reproducible. Continue human verification before publishing any entry.
+
+ServiceNowDocs retains only recent family branches, so dataset entries should preserve their verification date and source provenance. Do not mirror or republish the complete ServiceNow documentation corpus in this project.
+
 ## Run locally
 
 Requires Node.js 22.13 or newer.
