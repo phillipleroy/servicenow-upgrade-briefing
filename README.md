@@ -7,7 +7,7 @@ An unofficial, source-backed briefing tool with two views:
 
 Visitors can share filtered URLs, print or save a briefing as PDF, and open the exact official source behind every finding. The first monthly archive covers July 2026.
 
-Upgrade Brief is a personal project created independently by a ServiceNow employee. It is not an official ServiceNow product and is not sponsored, approved, or endorsed by ServiceNow, Inc. Views, editorial priorities, and recommendations are the author's own and are explicitly separated from official ServiceNow facts.
+Upgrade Brief is an independent community project. It is not an official ServiceNow product and is not sponsored, approved, or endorsed by ServiceNow, Inc. Views, editorial priorities, and recommendations are the author's own and are explicitly separated from official ServiceNow facts.
 
 ## Source strategy
 
